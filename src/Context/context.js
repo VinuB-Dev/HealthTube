@@ -24,6 +24,7 @@ export function VideoProvider({ children }) {
     ]
   });
   useEffect(() => {
+    document.title = "HealthTube";
     setData(videos);
   }, []);
 

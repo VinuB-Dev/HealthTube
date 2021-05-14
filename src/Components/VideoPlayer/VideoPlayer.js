@@ -91,11 +91,11 @@ const ShowItem = () => {
           <img src={channel.logo} alt="" />
         </div>
         <div>
-          <div className="pad1">{channel.title}</div>
-          <div className="pad1 silver">
+          <div className="pad3">{channel.title}</div>
+          <div className="pad3 silver">
             {Math.floor(parseInt(channel.subscribers, 10) / 1000)}k subscribers
           </div>
-          <div className="pad1">{description}</div>
+          <div className="pad3">{description}</div>
         </div>
       </div>
     </div>
@@ -153,7 +153,7 @@ export default function VideoPlayer() {
         <div className="allItems">
           <ShowItem />
         </div>
-        <div className="allItems">
+        <div className="allItems cards">
           <ShowVideoCards />
         </div>
       </div>

@@ -7,6 +7,7 @@ import VideoPlayer from "./Components/VideoPlayer/VideoPlayer";
 import History from "./Pages/History";
 import Playlist from "./Pages/Playlist";
 import Watchlater from "./Pages/Watchlater";
+import NotFound from "./Pages/NotFound";
 import { Route } from "react-router-dom";
 import { Routes } from "react-router-dom";
 import Toolbar from "./Components/Toolbar/Toolbar";
@@ -21,12 +22,15 @@ export default function App() {
       </div>
       <div className="routes">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <div className="grid">
+            <Route path="/" element={<Home />} />
+          </div>
           <Route path="/video/:embedId" element={<VideoPlayer />}></Route>
           <Route path="/liked" element={<Liked />} />
           <Route path="/history" element={<History />} />
           <Route path="/playlist" element={<Playlist />} />
           <Route path="/watchlater" element={<Watchlater />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
       <div style={{ display: modal ? "none" : "unset" }}>

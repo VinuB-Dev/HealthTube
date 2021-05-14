@@ -1,7 +1,18 @@
 .player {
   grid-area: player;
-  margin-left: 8rem;
   width: 50rem;
+  margin-left: 8rem;
+}
+.react-player {
+  width: fit-content;
+}
+
+@media screen and (max-width: 1300px) {
+  player {
+    margin: 0;
+    padding: 0;
+    width: 99.5%;
+  }
 }
 
 @media screen and (max-width: 640px) {
@@ -22,6 +33,12 @@
   padding: 1rem;
   font-size: 1.3rem;
   color: black;
+}
+
+.pad3 {
+  padding: 0.1rem;
+  color: black;
+  text-align: left;
 }
 
 .silver {
@@ -82,6 +99,21 @@
   width: 80%;
 }
 
+@media (max-width: 1300px) {
+  .making-grids {
+    display: block;
+  }
+  .allItems {
+    padding: 0;
+    width: 100%;
+  }
+
+  .cards {
+    margin-left: 8rem;
+    margin-top: 2rem;
+  }
+}
+
 @media (max-width: 640px) {
   .making-grids {
     display: block;
@@ -89,6 +121,10 @@
   .allItems {
     padding: 0;
     width: 100%;
+  }
+  .cards {
+    margin-left: 0;
+    margin-top: 0;
   }
 }
 

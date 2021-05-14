@@ -1,6 +1,7 @@
 .App {
   font-family: sans-serif;
   text-align: center;
+  position: relative;
 }
 
 body {
@@ -12,7 +13,13 @@ body {
   margin-left: 6rem;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 1007px) {
+  .routes {
+    margin-left: 0;
+  }
+}
+
+@media screen and (max-width: 640px) {
   .routes {
     margin-left: 0;
   }
@@ -22,13 +29,13 @@ body {
   margin-left: 6rem;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
-  column-gap: 1rem;
+  column-gap: 3rem;
   row-gap: 2rem;
   place-items: center;
   margin-top: 0;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 760px) {
   .grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -39,31 +46,22 @@ body {
   }
 }
 
-@media screen and (max-width: 1450px) and (min-width: 1150px) {
+@media screen and (max-width: 1450px) and (min-width: 1008px) {
   .grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     column-gap: 2rem;
     row-gap: 0rem;
     place-items: center;
+    margin-left: 0rem;
   }
 }
 
-@media screen and (max-width: 1150px) and (min-width: 740px) {
+@media screen and (max-width: 1007px) and (min-width: 761px) {
   .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     column-gap: 2rem;
-    row-gap: 0rem;
-    place-items: center;
-  }
-}
-
-@media screen and (max-width: 740px) {
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    column-gap: 1rem;
     row-gap: 0rem;
     place-items: center;
   }

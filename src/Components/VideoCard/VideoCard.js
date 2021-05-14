@@ -1,4 +1,5 @@
 import "./VideoCard_module.css";
+import "../../styles.css";
 import { Link } from "react-router-dom";
 import { useVideo } from "../../Context/context";
 export default function VideoCard({ video }) {

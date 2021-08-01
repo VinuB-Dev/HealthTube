@@ -1,16 +1,28 @@
 import "./VideoCard_module.css";
 import "../../styles.css";
 import { Link } from "react-router-dom";
-import { useVideo } from "../../Context/context";
+import { useUser } from "../../Context/user/userContext";
+
+import { historyAdd } from "../../Services/user.service";
+
 export default function VideoCard({ video }) {
-  const { dispatch } = useVideo();
-  const { id, embedId, title, views, channel, age, thumbnailImgUrl } = video;
+  const { userDispatch } = useUser();
+  const { _id, embedId, title, views, channel, age, thumbnailImgUrl } = video;
+  const addHistory = async (video) => {
+    let promise = historyAdd(video);
+    userDispatch({ type: "ADD_TO_HISTORY", payload: video });
+    let response = await promise;
+    console.log(video);
+    if (!response.success) {
+      console.error("not added to history");
+    }
+  };
   return (
     <Link
       to={"/video/" + embedId}
-      key={id}
+      key={_id}
       className="card"
-      onClick={() => dispatch({ type: "ADD_TO_HISTORY", payload: video })}
+      onClick={() => addHistory(video)}
     >
       <div>
         <img src={thumbnailImgUrl} alt="" />

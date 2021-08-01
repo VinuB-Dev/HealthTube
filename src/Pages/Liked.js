@@ -1,11 +1,37 @@
-import { useVideo } from "../Context/context";
+import { useUser } from "../Context/user/userContext";
 import "../Components/VideoCard/VideoCard_module.css";
-import { BrowserRouter as Router, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { historyAdd, likedRemove } from "../Services/user.service";
+
 export default function Liked() {
   const {
-    state: { liked },
-    dispatch
-  } = useVideo();
+    userState: { liked },
+    userDispatch
+  } = useUser();
+
+  const addHistory = async (video) => {
+    let promise = historyAdd(video);
+    userDispatch({ type: "ADD_TO_HISTORY", payload: video });
+    let response = await promise;
+    if (!response.success) {
+      console.error("not added to history");
+    }
+  };
+
+  const removeLiked = async (video) => {
+    let promise = likedRemove(video);
+    userDispatch({
+      type: "REMOVE_FROM_LIKED_VIDEOS",
+      payload: video
+    });
+    let response = await promise;
+    if (!response.success) {
+      userDispatch({
+        type: "ADD_TO_LIKED_VIDEOS",
+        payload: video
+      });
+    }
+  };
 
   return (
     <div>
@@ -13,7 +39,7 @@ export default function Liked() {
       <div className="grid">
         {liked.map((video) => {
           const {
-            id,
+            _id,
             embedId,
             title,
             views,
@@ -24,20 +50,15 @@ export default function Liked() {
           return (
             <Link
               to={"/video/" + embedId}
-              key={id}
+              key={_id}
               className="card"
-              onClick={() =>
-                dispatch({ type: "ADD_TO_HISTORY", payload: video })
-              }
+              onClick={() => addHistory(video)}
             >
               <Link
                 to={"/liked"}
                 className="close-card"
                 onClick={() => {
-                  dispatch({
-                    type: "REMOVE_FROM_LIKED_VIDEOS",
-                    payload: video
-                  });
+                  removeLiked(video);
                 }}
               >
                 &times;

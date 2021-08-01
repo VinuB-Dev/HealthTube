@@ -5,21 +5,89 @@ import { RiThumbUpFill, RiThumbUpLine } from "react-icons/ri";
 import { BsFillClockFill, BsClock } from "react-icons/bs";
 import Modal from "../Modal/Modal";
 import { useParams } from "react-router-dom";
-import { videos } from "../../data/faker";
 import { Link } from "react-router-dom";
-import { useVideo } from "../../Context/context";
+import { useVideo } from "../../Context/data/dataContext";
+import { useUser } from "../../Context/user/userContext";
+import {
+  historyAdd,
+  likedRemove,
+  likedAdd,
+  watchlaterAdd,
+  watchlaterRemove
+} from "../../Services/user.service";
 
 const ShowItem = () => {
   const {
-    state: { watchlater, liked },
-    dispatch,
-    ModalChange
-  } = useVideo();
+    userState: { watchlater, liked },
+    userDispatch
+  } = useUser();
+  const { Filteredvideos, ModalChange } = useVideo();
   const embedId = useParams();
-  const video = videos.find(
+  const video = Filteredvideos.find(
     (video) => video.embedId === Object.values(embedId)[0]
   );
-  const { id, title, views, age, channel, description } = video;
+
+  const addliked = async (video) => {
+    let promise = likedAdd(video);
+    userDispatch({
+      type: "ADD_TO_LIKED_VIDEOS",
+      payload: video
+    });
+    let response = await promise;
+    if (!response.success) {
+      userDispatch({
+        type: "REMOVE_FROM_LIKED_VIDEOS",
+        payload: video
+      });
+    }
+  };
+
+  const removeLiked = async (video) => {
+    let promise = likedRemove(video);
+    userDispatch({
+      type: "REMOVE_FROM_LIKED_VIDEOS",
+      payload: video
+    });
+    let response = await promise;
+    if (!response.success) {
+      userDispatch({
+        type: "ADD_TO_LIKED_VIDEOS",
+        payload: video
+      });
+    }
+  };
+
+  const addwatchlater = async (video) => {
+    let promise = watchlaterAdd(video);
+    userDispatch({
+      type: "ADD_TO_WATCHLATER",
+      payload: video
+    });
+    let response = await promise;
+    if (!response.success) {
+      userDispatch({
+        type: "REMOVE_FROM_WATCHLATER",
+        payload: video
+      });
+    }
+  };
+
+  const removewatchlater = async (video) => {
+    let promise = watchlaterRemove(video);
+    userDispatch({
+      type: "REMOVE_FROM_WATCHLATER",
+      payload: video
+    });
+    let response = await promise;
+    if (!response.success) {
+      userDispatch({
+        type: "ADD_TO_WATCHLATER",
+        payload: video
+      });
+    }
+  };
+
+  const { _id, title, views, age, channel, description } = video;
   return (
     <div className="player">
       <ReactPlayer
@@ -43,11 +111,11 @@ const ShowItem = () => {
           </div>
         </div>
         <div className="flex-row1">
-          {liked.some((v) => v.id === id) ? (
+          {liked.some((v) => v._id === _id) ? (
             <div
               className="pad2"
               onClick={() => {
-                dispatch({ type: "REMOVE_FROM_LIKED_VIDEOS", payload: video });
+                removeLiked(video);
               }}
             >
               <RiThumbUpFill />
@@ -56,17 +124,17 @@ const ShowItem = () => {
             <div
               className="pad2"
               onClick={() => {
-                dispatch({ type: "ADD_TO_LIKED_VIDEOS", payload: video });
+                addliked(video);
               }}
             >
               <RiThumbUpLine />
             </div>
           )}
-          {watchlater.some((v) => v.id === id) ? (
+          {watchlater.some((v) => v._id === _id) ? (
             <div
               className="pad2"
               onClick={() => {
-                dispatch({ type: "REMOVE_FROM_WATCHLATER", payload: video });
+                removewatchlater(video);
               }}
             >
               <BsFillClockFill />
@@ -75,7 +143,7 @@ const ShowItem = () => {
             <div
               className="pad2"
               onClick={() => {
-                dispatch({ type: "ADD_TO_WATCHLATER", payload: video });
+                addwatchlater(video);
               }}
             >
               <BsClock />
@@ -103,18 +171,28 @@ const ShowItem = () => {
 };
 
 const ShowVideoCards = () => {
-  const { dispatch } = useVideo();
+  const { userDispatch } = useUser();
+  const { Filteredvideos } = useVideo();
+  const addHistory = async (video) => {
+    let promise = historyAdd(video);
+    userDispatch({ type: "ADD_TO_HISTORY", payload: video });
+    let response = await promise;
+    if (!response.success) {
+      console.error("not added to history");
+    }
+  };
+
   const embedId = useParams();
-  const filteredVideos = videos.filter(
+  const filteredVideos = Filteredvideos.filter(
     (video) => video.embedId !== Object.values(embedId)[0]
   );
   return filteredVideos.map((video) => {
     return (
       <Link
         to={"/video/" + video.embedId}
-        key={video.id}
+        key={video._id}
         className="card1"
-        onClick={() => dispatch({ type: "ADD_TO_HISTORY", payload: video })}
+        onClick={() => addHistory(video)}
       >
         <div className="thumbnail-img">
           <img src={video.thumbnailImgUrl} alt="" />
@@ -142,9 +220,9 @@ const ShowVideoCards = () => {
 };
 
 export default function VideoPlayer() {
-  const { modal } = useVideo();
+  const { Filteredvideos, modal } = useVideo();
   const embedId = useParams();
-  const video = videos.find(
+  const video = Filteredvideos.find(
     (video) => video.embedId === Object.values(embedId)[0]
   );
   return (

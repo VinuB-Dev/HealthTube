@@ -62,7 +62,7 @@
   background-color: white;
   border-bottom-left-radius: 2rem;
   padding: 0 0.8rem;
-  width: fit-content;
+  width: 0.5rem;
   color: rgb(124, 116, 116);
   z-index: 100;
 }

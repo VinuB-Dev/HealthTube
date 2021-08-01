@@ -1,7 +1,9 @@
-import { useVideo } from "../../Context/context";
+import { useVideo } from "../../Context/data/dataContext";
+import { useUser } from "../../Context/user/userContext";
 import "./Modal_module.css";
 import { useState } from "react";
-
+import { playlistAdd, playlistVideoAdd } from "../../Services/user.service";
+import { AiOutlineConsoleSql } from "react-icons/ai";
 export default function Modal({ video }) {
   const [playlistName, updateplaylistName] = useState("");
   function inputHandler(e) {
@@ -9,13 +11,47 @@ export default function Modal({ video }) {
     updateplaylistName(input);
   }
   const {
-    state: { playlists },
-    ModalChange,
-    dispatch
-  } = useVideo();
-  const { id } = video;
+    userState: { playlist },
+    userDispatch
+  } = useUser();
+  const { ModalChange } = useVideo();
+  let { _id } = video;
+
+  const addPlaylist = async (name) => {
+    let promise = playlistAdd(name);
+    let response = await promise;
+    if (response.success) {
+      userDispatch({
+        type: "CREATE_PLAYLIST",
+        payload: {
+          playlistId: response.playlist._id,
+          playlistName: response.playlist.name
+        }
+      });
+    }
+    if (!response.success) {
+      userDispatch({ type: "REMOVE_PLAYLIST", payload: name });
+    }
+  };
+
+  const addToPlaylist = async (playlist, video) => {
+    let promise = playlistVideoAdd(playlist._id, video._id);
+    userDispatch({
+      type: "ADD_TO_PLAYLIST",
+      payload: { playlist: playlist, video: video }
+    });
+    let response = await promise;
+    console.log(response);
+    if (!response.success) {
+      userDispatch({
+        type: "REMOVE_FROM_PLAYLIST",
+        payload: { playlist: playlist, video: video }
+      });
+    }
+  };
+
   return (
-    <div className="modal-app" key={id}>
+    <div className="modal-app" key={_id}>
       <div className="modal">
         <div className="modal-content">
           <div className="flex-row-playlist">
@@ -25,18 +61,14 @@ export default function Modal({ video }) {
             </div>
           </div>
           <div>
-            {playlists.map((playlist) => {
+            {playlist.map((playlist) => {
               return (
                 <div className="playlist-checker">
-                  {console.log(video)}
                   <button
                     style={{ marginRight: "0.5rem" }}
                     className="primary-btn"
                     onClick={() => {
-                      dispatch({
-                        type: "ADD_TO_PLAYLIST",
-                        payload: { playlist: playlist, video: video }
-                      });
+                      addToPlaylist(playlist, video);
                     }}
                   >
                     Add
@@ -50,10 +82,7 @@ export default function Modal({ video }) {
           <button
             className="primary-btn"
             onClick={() => {
-              dispatch({
-                type: "CREATE_PLAYLIST",
-                payload: playlistName
-              });
+              addPlaylist(playlistName);
             }}
           >
             Add

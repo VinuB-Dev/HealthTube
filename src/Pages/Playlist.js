@@ -1,38 +1,74 @@
-import { useVideo } from "../Context/context";
+import { useUser } from "../Context/user/userContext";
+import {
+  historyAdd,
+  playlistRemove,
+  playlistVideoRemove
+} from "../Services/user.service";
+
 import "../Components/VideoCard/VideoCard_module.css";
 import { Link } from "react-router-dom";
 import { AiFillDelete } from "react-icons/ai";
 export default function Playlist() {
   const {
-    state: { playlists },
-    dispatch
-  } = useVideo();
+    userState: { playlist },
+    userDispatch
+  } = useUser();
+
+  const addHistory = async (video) => {
+    let promise = historyAdd(video);
+    userDispatch({ type: "ADD_TO_HISTORY", payload: video });
+    let response = await promise;
+    if (!response.success) {
+      console.error("not added to history");
+    }
+  };
+
+  const removePlaylist = async (playlist) => {
+    let promise = playlistRemove(playlist._id);
+    userDispatch({ type: "REMOVE_PLAYLIST", payload: playlist });
+    let response = await promise;
+    if (!response.success) {
+      userDispatch({ type: "CREATE_PLAYLIST", payload: playlist });
+    }
+  };
+
+  const removeFromPlaylist = async (playlist, video) => {
+    let promise = playlistVideoRemove(playlist._id, video._id);
+    userDispatch({
+      type: "REMOVE_FROM_PLAYLIST",
+      payload: { playlist: playlist, video: video }
+    });
+    let response = await promise;
+    if (!response.success) {
+      userDispatch({
+        type: "ADD_TO_PLAYLIST",
+        payload: { playlist: playlist, video: video }
+      });
+    }
+  };
 
   return (
     <div>
-      <h2>Playlists {playlists.length}</h2>
-      {playlists.map((playlist) => {
-        const { id, name, video } = playlist;
+      <h2>Playlists {playlist.length}</h2>
+      {playlist.map((playlist1) => {
+        const { _id, name, videos } = playlist1;
         return (
-          <div key={id}>
+          <div key={_id}>
             <div className="playlist-row">
               <div>{name}</div>
               <div
                 className="delete"
                 onClick={() => {
-                  dispatch({
-                    type: "REMOVE_PLAYLIST",
-                    payload: playlist
-                  });
+                  removePlaylist(playlist1);
                 }}
               >
                 <AiFillDelete />
               </div>
             </div>
             <div className="grid">
-              {video.map((v) => {
+              {videos?.map((v) => {
                 const {
-                  id,
+                  _id,
                   embedId,
                   title,
                   views,
@@ -43,24 +79,18 @@ export default function Playlist() {
                 return (
                   <Link
                     to={"/video/" + embedId}
-                    key={id}
+                    key={_id}
                     className="card"
-                    onClick={() =>
-                      dispatch({ type: "ADD_TO_HISTORY", payload: v })
-                    }
+                    onClick={() => addHistory(v)}
                   >
-                    <Link
-                      to={"/playlist"}
+                    <div
                       className="close-card"
                       onClick={() => {
-                        dispatch({
-                          type: "REMOVE_FROM_PLAYLIST",
-                          payload: { playlist: playlist, video: video }
-                        });
+                        removeFromPlaylist(playlist1, v);
                       }}
                     >
-                      &times;
-                    </Link>
+                      <span>&times;</span>
+                    </div>
                     <div>
                       <img src={thumbnailImgUrl} alt="" />
                     </div>

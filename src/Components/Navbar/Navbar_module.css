@@ -21,24 +21,23 @@ a {
   color: white;
   position: sticky;
   top: 0;
+  height: 3.7rem;
 }
 
 .right-nav {
   display: flex;
   list-style: none;
   justify-content: flex-end;
-  margin-right: 2rem;
+  margin-right: 1rem;
 }
 
 .right-nav li {
   padding: 0.5rem;
 }
 
-.right-nav li:hover {
-  border-radius: 1rem;
-  background: #60a5fa;
-  text-align: center;
-  cursor: pointer;
+.right-nav li a {
+  font-size: 20px;
+  padding: 0.5rem;
 }
 
 .list-inline li {
@@ -50,7 +49,7 @@ a {
   margin-left: 1rem;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 800px) {
   .navbar {
     display: flex;
     justify-content: space-between;

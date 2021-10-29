@@ -1,18 +1,39 @@
-import { useVideo } from "../Context/context";
+import { useUser } from "../Context/user/userContext";
 import "../Components/VideoCard/VideoCard_module.css";
 import { Link } from "react-router-dom";
+import { historyAdd, historyClear } from "../Services/user.service";
 
 export default function History() {
   const {
-    state: { history },
-    dispatch
-  } = useVideo();
+    userState: { history },
+    userDispatch
+  } = useUser();
+
+  const addHistory = async (video) => {
+    let promise = historyAdd(video);
+    userDispatch({ type: "ADD_TO_HISTORY", payload: video });
+    let response = await promise;
+    if (!response.success) {
+      console.error("not added to history");
+    }
+  };
+
+  const clearHistory = async (video) => {
+    let promise = historyClear(video);
+    userDispatch({ type: "CLEAR_HISTORY" });
+    let response = await promise;
+    if (!response.success) {
+      console.error("not cleared history");
+    }
+  };
 
   return (
     <div>
       <button
         className="primary-btn2"
-        onClick={() => dispatch({ type: "CLEAR_HISTORY" })}
+        onClick={() => {
+          clearHistory();
+        }}
       >
         Clear All
       </button>
@@ -34,22 +55,10 @@ export default function History() {
               to={"/video/" + embedId}
               key={id}
               className="card"
-              onClick={() =>
-                dispatch({ type: "ADD_TO_HISTORY", payload: video })
-              }
+              onClick={() => {
+                addHistory(video);
+              }}
             >
-              <Link
-                to={"/liked"}
-                className="close-card"
-                onClick={() => {
-                  dispatch({
-                    type: "REMOVE_FROM_LIKED_VIDEOS",
-                    payload: video
-                  });
-                }}
-              >
-                &times;
-              </Link>
               <div>
                 <img src={thumbnailImgUrl} alt="" />
               </div>

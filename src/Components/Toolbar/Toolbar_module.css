@@ -22,13 +22,11 @@ a {
   background-color: rgb(59, 57, 57);
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 640px) {
   .sticky-toolbar {
     position: fixed;
     border-right: none;
-    top: 40rem;
-    left: 0;
-    right: 0;
+    top: 85%;
     bottom: 0;
     width: 100%;
     height: auto;
@@ -43,7 +41,7 @@ a {
   margin: 0;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 640px) {
   .sticky-toolbar ul {
     display: flex;
     flex-direction: row;
@@ -61,13 +59,14 @@ a {
   height: max-content;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 640px) {
   .sticky-toolbar li {
     padding: 0.4rem;
     list-style: none;
     font-size: 1.3rem;
     z-index: 99;
     width: 25%;
+    bottom: 0;
   }
 }
 

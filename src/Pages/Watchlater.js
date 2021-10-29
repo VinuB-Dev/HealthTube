@@ -1,12 +1,37 @@
-import { useVideo } from "../Context/context";
+import { useUser } from "../Context/user/userContext";
+import { historyAdd, watchlaterRemove } from "../Services/user.service";
 import "../Components/VideoCard/VideoCard_module.css";
 import { Link } from "react-router-dom";
 
 export default function Watchlater() {
   const {
-    state: { watchlater },
-    dispatch
-  } = useVideo();
+    userState: { watchlater },
+    userDispatch
+  } = useUser();
+
+  const removewatchlater = async (video) => {
+    let promise = watchlaterRemove(video);
+    userDispatch({
+      type: "REMOVE_FROM_WATCHLATER",
+      payload: video
+    });
+    let response = await promise;
+    if (!response.success) {
+      userDispatch({
+        type: "ADD_TO_WATCHLATER",
+        payload: video
+      });
+    }
+  };
+
+  const addHistory = async (video) => {
+    let promise = historyAdd(video);
+    userDispatch({ type: "ADD_TO_HISTORY", payload: video });
+    let response = await promise;
+    if (!response.success) {
+      console.error("not added to history");
+    }
+  };
 
   return (
     <div>
@@ -27,18 +52,13 @@ export default function Watchlater() {
               to={"/video/" + embedId}
               key={id}
               className="card"
-              onClick={() =>
-                dispatch({ type: "ADD_TO_HISTORY", payload: video })
-              }
+              onClick={() => addHistory(video)}
             >
               <Link
                 to={"/watchlater"}
                 className="close-card"
                 onClick={() => {
-                  dispatch({
-                    type: "REMOVE_FROM_WATCHLATER",
-                    payload: video
-                  });
+                  removewatchlater(video);
                 }}
               >
                 &times;

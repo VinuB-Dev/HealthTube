@@ -1,134 +1,227 @@
-import "./VideoPlayer_module.css";
-import ReactPlayer from "react-player";
-import { MdPlaylistAdd } from "react-icons/md";
-import { RiThumbUpFill, RiThumbUpLine } from "react-icons/ri";
-import { BsFillClockFill, BsClock } from "react-icons/bs";
-import Modal from "../Modal/Modal";
-import { useParams } from "react-router-dom";
-import { videos } from "../../data/faker";
-import { Link } from "react-router-dom";
-import { useVideo } from "../../Context/context";
+import './VideoPlayer_module.css'
+import ReactPlayer from 'react-player'
+import { MdPlaylistAdd } from 'react-icons/md'
+import { RiThumbUpFill, RiThumbUpLine } from 'react-icons/ri'
+import { BsFillClockFill, BsClock } from 'react-icons/bs'
+import Modal from '../Modal/Modal'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { useVideo } from '../../Context/data/dataContext'
+import { useUser } from '../../Context/user/userContext'
+import {
+  historyAdd,
+  likedRemove,
+  likedAdd,
+  watchlaterAdd,
+  watchlaterRemove,
+} from '../../Services/user.service'
 
 const ShowItem = () => {
   const {
-    state: { watchlater, liked },
-    dispatch,
-    ModalChange
-  } = useVideo();
-  const embedId = useParams();
-  const video = videos.find(
+    userState: { watchlater, liked, isLoggedIn },
+    userDispatch,
+  } = useUser()
+  const { Filteredvideos, ModalChange } = useVideo()
+  const embedId = useParams()
+  const video = Filteredvideos.find(
     (video) => video.embedId === Object.values(embedId)[0]
-  );
-  const { id, title, views, age, channel, description } = video;
+  )
+  const navigate = useNavigate()
+  const addliked = async (video) => {
+    if (isLoggedIn === null) navigate('/login')
+    else {
+      let promise = likedAdd(video)
+      userDispatch({
+        type: 'ADD_TO_LIKED_VIDEOS',
+        payload: video,
+      })
+      let response = await promise
+      if (!response.success) {
+        userDispatch({
+          type: 'REMOVE_FROM_LIKED_VIDEOS',
+          payload: video,
+        })
+      }
+    }
+  }
+
+  const removeLiked = async (video) => {
+    let promise = likedRemove(video)
+    userDispatch({
+      type: 'REMOVE_FROM_LIKED_VIDEOS',
+      payload: video,
+    })
+    let response = await promise
+    if (!response.success) {
+      userDispatch({
+        type: 'ADD_TO_LIKED_VIDEOS',
+        payload: video,
+      })
+    }
+  }
+
+  const addwatchlater = async (video) => {
+    if (isLoggedIn === null) navigate('/login')
+    else {
+      let promise = watchlaterAdd(video)
+      userDispatch({
+        type: 'ADD_TO_WATCHLATER',
+        payload: video,
+      })
+      let response = await promise
+      if (!response.success) {
+        userDispatch({
+          type: 'REMOVE_FROM_WATCHLATER',
+          payload: video,
+        })
+      }
+    }
+  }
+
+  const removewatchlater = async (video) => {
+    let promise = watchlaterRemove(video)
+    userDispatch({
+      type: 'REMOVE_FROM_WATCHLATER',
+      payload: video,
+    })
+    let response = await promise
+    if (!response.success) {
+      userDispatch({
+        type: 'ADD_TO_WATCHLATER',
+        payload: video,
+      })
+    }
+  }
+
+  const { _id, title, views, age, channel, description } = video
   return (
-    <div className="player">
+    <div className='player'>
       <ReactPlayer
         url={
-          "https://www.youtube.com/embed/" +
+          'https://www.youtube.com/embed/' +
           Object.values(embedId)[0] +
-          "?autoplay=1"
+          '?autoplay=1'
         }
-        className="react-player"
+        className='react-player'
         playing={true}
         controls
         volume={1}
-        width="100%"
+        width='100%'
       />
-      <div className="flex-row1">
+      <div className='flex-row1'>
         <div>
-          <div className="pad1">{title}</div>
-          <div className="silver pad1 line">
+          <div className='pad1'>{title}</div>
+          <div className='silver pad1 line'>
             <span>{Math.floor(views / 1000)}k views •</span>
             <span> {age} ago</span>
           </div>
         </div>
-        <div className="flex-row1">
-          {liked.some((v) => v.id === id) ? (
+        <div className='flex-row1'>
+          {liked.some((v) => v._id === _id) ? (
             <div
-              className="pad2"
+              className='pad2'
               onClick={() => {
-                dispatch({ type: "REMOVE_FROM_LIKED_VIDEOS", payload: video });
+                removeLiked(video)
               }}
             >
               <RiThumbUpFill />
             </div>
           ) : (
             <div
-              className="pad2"
+              className='pad2'
               onClick={() => {
-                dispatch({ type: "ADD_TO_LIKED_VIDEOS", payload: video });
+                addliked(video)
               }}
             >
               <RiThumbUpLine />
             </div>
           )}
-          {watchlater.some((v) => v.id === id) ? (
+          {watchlater.some((v) => v._id === _id) ? (
             <div
-              className="pad2"
+              className='pad2'
               onClick={() => {
-                dispatch({ type: "REMOVE_FROM_WATCHLATER", payload: video });
+                removewatchlater(video)
               }}
             >
               <BsFillClockFill />
             </div>
           ) : (
             <div
-              className="pad2"
+              className='pad2'
               onClick={() => {
-                dispatch({ type: "ADD_TO_WATCHLATER", payload: video });
+                addwatchlater(video)
               }}
             >
               <BsClock />
             </div>
           )}
-          <div className="pad2" onClick={ModalChange}>
+          <div
+            className='pad2'
+            onClick={isLoggedIn === null ? navigate('/login') : ModalChange}
+          >
             <MdPlaylistAdd />
           </div>
         </div>
       </div>
-      <div className="flex-row3">
-        <div className="logo">
-          <img src={channel.logo} alt="" />
+      <div className='flex-row3'>
+        <div className='logo'>
+          <img src={channel.logo} alt='' />
         </div>
         <div>
-          <div className="pad1">{channel.title}</div>
-          <div className="pad1 silver">
+          <div className='pad3'>{channel.title}</div>
+          <div className='pad3 silver'>
             {Math.floor(parseInt(channel.subscribers, 10) / 1000)}k subscribers
           </div>
-          <div className="pad1">{description}</div>
+          <div className='pad3'>{description}</div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const ShowVideoCards = () => {
-  const { dispatch } = useVideo();
-  const embedId = useParams();
-  const filteredVideos = videos.filter(
+  const {
+    userState: { isLoggedIn },
+    userDispatch,
+  } = useUser()
+  const { Filteredvideos } = useVideo()
+  const addHistory = async (video) => {
+    if (isLoggedIn === null) navigate('/login')
+    else {
+      let promise = historyAdd(video)
+      userDispatch({ type: 'ADD_TO_HISTORY', payload: video })
+      let response = await promise
+      if (!response.success) {
+        console.error('not added to history')
+      }
+    }
+  }
+
+  const embedId = useParams()
+  const filteredVideos = Filteredvideos.filter(
     (video) => video.embedId !== Object.values(embedId)[0]
-  );
+  )
   return filteredVideos.map((video) => {
     return (
       <Link
-        to={"/video/" + video.embedId}
-        key={video.id}
-        className="card1"
-        onClick={() => dispatch({ type: "ADD_TO_HISTORY", payload: video })}
+        to={'/video/' + video.embedId}
+        key={video._id}
+        className='card1'
+        onClick={() => addHistory(video)}
       >
-        <div className="thumbnail-img">
-          <img src={video.thumbnailImgUrl} alt="" />
+        <div className='thumbnail-img'>
+          <img src={video.thumbnailImgUrl} alt='' />
         </div>
-        <div className="content">
-          <div className="pad1">{video.title}</div>
-          <div className="flex-row2">
-            <div className="logo1">
-              <img src={video.channel.logo} alt="" />
+        <div className='content'>
+          <div className='pad1'>{video.title}</div>
+          <div className='flex-row2'>
+            <div className='logo1'>
+              <img src={video.channel.logo} alt='' />
             </div>
             <div>
-              <div className="pad1 silver">{video.channel.title}</div>
-              <div className="silver">
-                <span style={{ marginLeft: "5px" }}>
+              <div className='pad1 silver'>{video.channel.title}</div>
+              <div className='silver'>
+                <span style={{ marginLeft: '5px' }}>
                   {video.views % 1000}k views •
                 </span>
                 <span> {video.age} ago</span>
@@ -137,32 +230,32 @@ const ShowVideoCards = () => {
           </div>
         </div>
       </Link>
-    );
-  });
-};
+    )
+  })
+}
 
 export default function VideoPlayer() {
-  const { modal } = useVideo();
-  const embedId = useParams();
-  const video = videos.find(
+  const { Filteredvideos, modal } = useVideo()
+  const embedId = useParams()
+  const video = Filteredvideos.find(
     (video) => video.embedId === Object.values(embedId)[0]
-  );
+  )
   return (
     <div>
-      <div className="making-grids" style={{ display: modal ? "none" : "" }}>
-        <div className="allItems">
+      <div className='making-grids' style={{ display: modal ? 'none' : '' }}>
+        <div className='allItems'>
           <ShowItem />
         </div>
-        <div className="allItems">
+        <div className='allItems cards'>
           <ShowVideoCards />
         </div>
       </div>
       <div
-        className="modal-class"
-        style={{ display: modal ? "block" : "none" }}
+        className='modal-class'
+        style={{ display: modal ? 'block' : 'none' }}
       >
         <Modal video={video} />
       </div>
     </div>
-  );
+  )
 }
